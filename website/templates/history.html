@@ -2,4 +2,9 @@
 
 {% block content %}
 <h3 align="center">Conversion History</h3>
+<ul class="list-group list-group-flush" id="videos">
+    {% for video in user.videos %}
+    <li class="list-group-item">{{ video.url }}</li>
+    {% endfor %}
+</ul>
 {% endblock %}
