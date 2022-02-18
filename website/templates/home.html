@@ -1,0 +1,17 @@
+{% extends "base.html" %} {% block title %}Home{% endblock %}
+
+{% block content %}
+<form method="POST">
+    <h3 align="center">Youtube Video Downloader</h3>
+    <div class="form-group">
+        <label for="video-url">Video URL</label>
+        <input
+        type="video-url"
+        class="form-control"
+        id="video-url" name="video-url"
+        placeholder="Enter video URL">
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary">Convert</button>
+</form>
+{% endblock %}
