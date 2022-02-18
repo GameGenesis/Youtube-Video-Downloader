@@ -6,6 +6,7 @@ from sqlalchemy.sql import func
 
 class Video(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100))
     url = db.Column(db.String(150))
     date = db.Column(db.DateTime(timezone=True), default=func.now())
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
