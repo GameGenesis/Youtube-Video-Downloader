@@ -3,6 +3,9 @@ from flask_login import login_required, current_user
 from .models import Video
 from . import db
 
+from pytube import YouTube
+from pathlib import Path
+
 views = Blueprint("views", __name__)
 
 @views.route("/", methods=["GET", "POST"])
@@ -14,9 +17,16 @@ def home():
         if "youtube.com/" not in url:
             flash("Video URL is not valid.", category="error")
         else:
-            new_video = Video(url=url, date=date, user_id=current_user.id)
-            db.session.add(new_video)
-            db.session.commit()
+            yt = YouTube(url)
+            yt = yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first()
+            downloads_path = str(Path.home() / "Downloads")
+            yt.download(downloads_path)
+
+            if current_user.is_authenticated:
+                new_video = Video(title=yt.title, url=url, date=date, user_id=current_user.id)
+                db.session.add(new_video)
+                db.session.commit()
+            
             flash("Video converted successfully!", category="success")
         
     return render_template("home.html", user=current_user)
