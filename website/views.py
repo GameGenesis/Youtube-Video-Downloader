@@ -14,9 +14,7 @@ def home():
         url = request.form.get("url")
         date = request.form.get("date")
 
-        if "youtube.com/" not in url:
-            flash("Video URL is not valid.", category="error")
-        else:
+        try:
             yt = YouTube(url)
             yt = yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first()
             downloads_path = str(Path.home() / "Downloads")
@@ -28,6 +26,8 @@ def home():
                 db.session.commit()
             
             flash("Video converted successfully!", category="success")
+        except Exception:
+            flash("Video URL is not valid.", category="error")
         
     return render_template("home.html", user=current_user)
 
