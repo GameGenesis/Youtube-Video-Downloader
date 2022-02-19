@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash
+from flask import Blueprint, render_template, request, flash, send_file
 from flask_login import login_required, current_user
 from .models import Video
 from . import db
@@ -20,9 +20,10 @@ def home():
         else:
             yt = YouTube(url)
             yt = yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first()
-            downloads_path = os.path.expanduser("~")+"/Downloads/"
-            print(downloads_path)
+            downloads_path = str(Path.home() / "Downloads")
             yt.download(downloads_path)
+            print(str(os.path.join(downloads_path, yt.default_filename)))
+            send_file(os.path.join(downloads_path, yt.default_filename), as_attachment=True)
 
             if current_user.is_authenticated:
                 new_video = Video(title=yt.title, url=url, date=date, user_id=current_user.id)
