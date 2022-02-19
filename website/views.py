@@ -5,6 +5,7 @@ from . import db
 
 from pytube import YouTube
 from pathlib import Path
+import os
 
 views = Blueprint("views", __name__)
 
@@ -19,7 +20,7 @@ def home():
         else:
             yt = YouTube(url)
             yt = yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first()
-            downloads_path = str(Path.home() / "Downloads")
+            downloads_path = os.path.expanduser("~")+"/Downloads/"
             print(downloads_path)
             yt.download(downloads_path)
 
