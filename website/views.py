@@ -22,8 +22,7 @@ def home():
             yt = yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first()
             downloads_path = str(Path.home() / "Downloads")
             yt.download(downloads_path)
-            print(str(os.path.join(downloads_path, yt.default_filename)))
-            send_file(os.path.join(downloads_path, yt.default_filename), as_attachment=True)
+            download(str(os.path.join(downloads_path, yt.default_filename)))
 
             if current_user.is_authenticated:
                 new_video = Video(title=yt.title, url=url, date=date, user_id=current_user.id)
@@ -38,3 +37,8 @@ def home():
 @login_required
 def history():
     return render_template("history.html", user=current_user)
+
+@views.route("/download")
+def download(file_path):
+    print(file_path)
+    return send_file(file_path, as_attachment=True)
