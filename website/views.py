@@ -38,7 +38,10 @@ def home():
         try:
             yt = YouTube(url)
         except Exception:
-            flash("Video URL is not valid.", category="error")
+            if "playlist?" in url:
+                flash("Playlists can only be converted on the playlist page.", category="error")
+            else:
+                flash("Video URL is not valid.", category="error")
             return render_template("home.html", user=current_user)
         
         try:
