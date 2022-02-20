@@ -47,11 +47,13 @@ def home():
             print(f"Downloading \"{video.title}\"..")
             downloads_path = str(Path.home() / "Downloads")
             video.download(downloads_path)
-            
-            file_path = os.path.join(downloads_path, video.default_filename)
+
         except Exception:
             flash("Video could not be converted.", category="error")
             return render_template("home.html", user=current_user)
+
+        file_path = os.path.join(downloads_path, video.default_filename)
+        print(file_path)
 
         try:
             if file_type == "mp3":
@@ -67,7 +69,6 @@ def home():
             db.session.commit()
         
         flash("Video converted successfully!", category="success")
-        print(file_path)
         return send_file(path_or_file=file_path, as_attachment=True)
     return render_template("home.html", user=current_user)
 
