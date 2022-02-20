@@ -4,7 +4,7 @@ from .models import Video
 from . import db
 
 from pytube import YouTube
-from pathlib import Path
+import time
 import os
 
 views = Blueprint("views", __name__)
@@ -45,16 +45,18 @@ def home():
             print("Views: {:,}\n".format(yt.views))
 
             print(f"Downloading \"{video.title}\"..")
-            downloads_path = str(Path.home() / "Downloads")
+            downloads_path = os.path.join(os.getcwd(), "temp")
             video.download(downloads_path)
         except Exception:
             flash("Video could not be converted.", category="error")
             return render_template("home.html", user=current_user)
 
+        file_path = os.path.join(downloads_path, video.default_filename)
+
         try:
             if file_type == "mp3":
-                file_path = os.path.join(downloads_path, video.default_filename)
                 os.rename(file_path, file_path.replace("mp4", "mp3"))
+                file_path = file_path.replace("mp4", "mp3")
         except Exception:
             flash("Video could not be converted to an MP3 format successfully. File cannot be found or already exists.", category="error")
             return render_template("home.html", user=current_user)
@@ -64,8 +66,13 @@ def home():
             db.session.add(new_video)
             db.session.commit()
         
-        flash("Video converted successfully!", category="success")
-        
+        try:
+            downloaded_file = send_file(path_or_file=file_path, as_attachment=True)
+            os.remove(file_path)
+            return downloaded_file
+        except Exception:
+           flash("Video converted successfully! Saved to temporary folder.", category="success")
+           print(f"File stored at: {file_path}")
     return render_template("home.html", user=current_user)
 
 @views.route("/history", methods=["GET", "POST"])
