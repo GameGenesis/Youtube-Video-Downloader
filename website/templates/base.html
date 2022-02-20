@@ -24,17 +24,25 @@
         <div class="collapse navbar-collapse" id="navbar">
             <div class="navbar-nav  mr-auto">
                 <a class="nav-item nav-link" id="home" href="/">Home</a>
-                {% if user.is_authenticated %}
-                <a class="nav-item nav-link" id="history" href="/history">History</a>
-                <a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
-                {% else %}
+                {% if not user.is_authenticated %}
                 <a class="nav-item nav-link" id="login" href="/login">Login</a>
                 <a class="nav-item nav-link" id="sign-up" href="/sign-up">Sign Up</a>
                 {% endif %}
             </div>
             <div class="navbar-nav  ml-auto">
                 {% if user.is_authenticated %}
-                <a class="nav-item nav-link" id="user-name" href="/"><strong>{{ "Hello, " + user.first_name }}</strong></a>
+                <div class="dropdown show">
+                    <a class="nav-link dropdown-toggle" href="/" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <strong>{{ "Hello, " + user.first_name }}</strong>
+                    </a>
+                  
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
+                        <a class="dropdown-item" id="history" href="/history">History</a>
+                        <a class="dropdown-item" id="logout" href="/logout">Logout</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" id="delete-account" href="/">Delete Account</a>
+                    </div>
+                  </div>
                 {% endif %}
             </div>
         </div>
