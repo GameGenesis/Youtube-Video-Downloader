@@ -120,8 +120,7 @@ def playlist():
             rmtree(playlist_path)
             return downloaded_file
         except Exception:
-            flash("Video converted successfully! Saved to temporary folder.", category="success")
-            print(f"File stored at: {playlist_path}")
+            flash("Playlist could not be downloaded.", category="error")
     
     return render_template("playlist.html", user=current_user)
 
