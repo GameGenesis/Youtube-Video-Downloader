@@ -25,6 +25,7 @@
         <div class="collapse navbar-collapse" id="navbar">
             <div class="navbar-nav  mr-auto">
                 <a class="nav-item nav-link" id="home" href="/">Home</a>
+                <a class="nav-item nav-link" id="home" href="/playlist">Playlist</a>
             </div>
             <div class="navbar-nav  ml-auto">
                 {% if user.is_authenticated %}
@@ -32,7 +33,6 @@
                     <a class="nav-link dropdown-toggle" href="/" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <strong>{{ "Hello, " + user.name }}</strong>
                     </a>
-                  
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
                         <a class="dropdown-item" id="history" href="/history">History</a>
                         <a class="dropdown-item" id="logout" href="/logout">Logout</a>

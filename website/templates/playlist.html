@@ -1,0 +1,18 @@
+{% extends "base.html" %} {% block title %}Playlist{% endblock %}
+
+{% block content %}
+<form method="POST">
+    <h3 align="center" style="margin-top:15px;margin-bottom:15px;">Youtube Playlist Downloader</h3>
+    <div class="form-group">
+        <input
+        type="url"
+        class="form-control"
+        id="url" name="url"
+        placeholder="Enter Playlist URL">
+    </div>
+    <center>
+    <button type="submit" class="btn btn-primary" name="convert" value="mp4">Convert To MP4</button>&nbsp;&nbsp;
+    <button type="submit" class="btn btn-primary" name="convert" value="mp3">Convert To MP3</button>
+    </center>
+</form>
+{% endblock %}
