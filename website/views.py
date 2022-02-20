@@ -11,6 +11,9 @@ from shutil import rmtree
 
 views = Blueprint("views", __name__)
 
+#Pages
+
+#Redirects to video conversion page (/video)
 @views.route("/")
 def home():
     return redirect(url_for("views.video"))
@@ -71,18 +74,22 @@ def playlist():
         
         file_type = "mp4" if request.form["convert"] == "mp4" else "mp3"
         
-        playlist_path = os.path.join(os.getcwd(), "temp", playlist.title)
+        try:
+            playlist_path = os.path.join(os.getcwd(), "temp", playlist.title)
 
-        for url in playlist:
-            yt = YouTube(url)
-            if file_type == "mp4":
-                video = yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first()
-                video.download(playlist_path)
-            else:
-                video = yt.streams.filter(only_audio=True).get_audio_only()
-                video.download(playlist_path)
-                file_path = os.path.join(playlist_path, video.default_filename)
-                os.rename(file_path, file_path.replace("mp4", "mp3"))
+            for url in playlist:
+                yt = YouTube(url)
+                if file_type == "mp4":
+                    video = yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first()
+                    video.download(playlist_path)
+                else:
+                    video = yt.streams.filter(only_audio=True).get_audio_only()
+                    video.download(playlist_path)
+                    file_path = os.path.join(playlist_path, video.default_filename)
+                    os.rename(file_path, file_path.replace("mp4", "mp3"))
+        except:
+            flash("Playlist could not be converted. Playlist may not exist.", category="error")
+            return render_template("playlist.html", user=current_user)
         
         save_history(url, date, playlist.title, file_type)
 
@@ -95,17 +102,6 @@ def playlist():
             flash("Playlist could not be downloaded.", category="error")
     
     return render_template("playlist.html", user=current_user)
-
-def zip_folder(name, path):
-    zip_file_name = f"{name}.zip"
-    memory_file = BytesIO()
-    with zipfile.ZipFile(memory_file, 'w', zipfile.ZIP_DEFLATED) as zipf:
-        for root, dirs, files in os.walk(path):
-            for file in files:
-                zipf.write(os.path.join(root, file))
-            
-    memory_file.seek(0)
-    return zip_file_name, memory_file
 
 @views.route("/history", methods=["GET", "POST"])
 @login_required
@@ -120,6 +116,19 @@ def history():
             flash("Could not clear history.", category="error")
     return render_template("history.html", user=current_user)
 
+#Functions
+
+def zip_folder(name, path):
+    zip_file_name = f"{name}.zip"
+    memory_file = BytesIO()
+    with zipfile.ZipFile(memory_file, 'w', zipfile.ZIP_DEFLATED) as zipf:
+        for root, dirs, files in os.walk(path):
+            for file in files:
+                zipf.write(os.path.join(root, file))
+            
+    memory_file.seek(0)
+    return zip_file_name, memory_file
+
 def download_video(yt):
     if request.form["convert"] == "mp4":
         video = yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first()
@@ -131,13 +140,15 @@ def download_video(yt):
     debug_progress(yt, video)
     downloads_path = os.path.join(os.getcwd(), "temp")
     video.download(downloads_path)
-    return video,file_type,downloads_path
+    return video, file_type, downloads_path
 
 def save_history(url, date, title, file_type):
     if current_user.is_authenticated:
         new_video = Video(title=title, url=url, date=date, file_type=file_type, user_id=current_user.id)
         db.session.add(new_video)
         db.session.commit()
+
+#Debug functions
 
 def debug_progress(yt, video):
     yt.register_on_progress_callback(on_progress)
