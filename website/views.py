@@ -47,13 +47,14 @@ def home():
             print(f"Downloading \"{video.title}\"..")
             downloads_path = str(Path.home() / "Downloads")
             video.download(downloads_path)
+            
+            file_path = os.path.join(downloads_path, video.default_filename)
         except Exception:
             flash("Video could not be converted.", category="error")
             return render_template("home.html", user=current_user)
 
         try:
             if file_type == "mp3":
-                file_path = os.path.join(downloads_path, video.default_filename)
                 os.rename(file_path, file_path.replace("mp4", "mp3"))
                 file_path = file_path.replace("mp4", "mp3")
         except Exception:
