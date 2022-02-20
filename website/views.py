@@ -7,6 +7,7 @@ from . import db
 from pytube import YouTube, Playlist
 import os
 import zipfile
+from shutil import rmtree
 
 views = Blueprint("views", __name__)
 
@@ -92,32 +93,34 @@ def playlist():
         
         file_type = "mp4" if request.form["convert"] == "mp4" else "mp3"
         
-        downloads_path = os.path.join(os.getcwd(), "temp", playlist.title)
+        playlist_path = os.path.join(os.getcwd(), "temp", playlist.title)
 
         for url in playlist:
             yt = YouTube(url)
             if file_type == "mp4":
                 video = yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first()
-                video.download(downloads_path)
+                video.download(playlist_path)
             else:
                 video = yt.streams.filter(only_audio=True).get_audio_only()
-                video.download(downloads_path)
-                file_path = os.path.join(downloads_path, video.default_filename)
+                video.download(playlist_path)
+                file_path = os.path.join(playlist_path, video.default_filename)
                 os.rename(file_path, file_path.replace("mp4", "mp3"))
         
         try:
+            zip_file_name = f"{playlist.title}.zip"
             memory_file = BytesIO()
             with zipfile.ZipFile(memory_file, 'w', zipfile.ZIP_DEFLATED) as zipf:
-                for f_name in downloads_path.iterdir():
-                    zipf.write(f_name)
+                for root, dirs, files in os.walk(playlist_path):
+                        for file in files:
+                                zipf.write(os.path.join(root, file))
             
             memory_file.seek(0)
-            downloaded_file =  send_file(memory_file, attachment_filename=playlist.title, as_attachment=True)
-            os.remove(downloads_path)
+            downloaded_file = send_file(memory_file, attachment_filename=zip_file_name, as_attachment=True)
+            rmtree(playlist_path)
             return downloaded_file
         except Exception:
-           flash("Video converted successfully! Saved to temporary folder.", category="success")
-           print(f"File stored at: {downloads_path}")
+            flash("Video converted successfully! Saved to temporary folder.", category="success")
+            print(f"File stored at: {playlist_path}")
     
     return render_template("playlist.html", user=current_user)
 
