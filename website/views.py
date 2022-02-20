@@ -66,13 +66,12 @@ def home():
             db.session.add(new_video)
             db.session.commit()
         
-        #flash("Video converted successfully!", category="success")
         try:
             downloaded_file = send_file(path_or_file=file_path, as_attachment=True)
             os.remove(file_path)
             return downloaded_file
         except Exception:
-           pass 
+           flash("Video converted successfully! Saved to temporary folder.", category="success") 
     return render_template("home.html", user=current_user)
 
 @views.route("/history", methods=["GET", "POST"])
