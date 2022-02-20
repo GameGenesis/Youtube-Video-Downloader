@@ -71,7 +71,8 @@ def home():
             os.remove(file_path)
             return downloaded_file
         except Exception:
-           flash("Video converted successfully! Saved to temporary folder.", category="success") 
+           flash("Video converted successfully! Saved to temporary folder.", category="success")
+           print(f"File stored at: {file_path}")
     return render_template("home.html", user=current_user)
 
 @views.route("/history", methods=["GET", "POST"])
