@@ -11,6 +11,12 @@ from shutil import rmtree
 
 views = Blueprint("views", __name__)
 
+def save_history(url, date, title, file_type):
+    if current_user.is_authenticated:
+        new_video = Video(title=title, url=url, date=date, file_type=file_type, user_id=current_user.id)
+        db.session.add(new_video)
+        db.session.commit()
+
 def debug_progress(yt, video):
     yt.register_on_progress_callback(on_progress)
     print(f"Fetching \"{video.title}\"..")
@@ -71,10 +77,7 @@ def video():
             flash("Video could not be converted to an MP3 format successfully. File cannot be found or already exists.", category="error")
             return render_template("video.html", user=current_user)
 
-        if current_user.is_authenticated:
-            new_video = Video(title=yt.title, url=url, date=date, file_type=file_type, user_id=current_user.id)
-            db.session.add(new_video)
-            db.session.commit()
+        save_history(url, date, video.title, file_type)
         
         try:
             downloaded_file = send_file(path_or_file=file_path, as_attachment=True)
@@ -89,6 +92,7 @@ def video():
 def playlist():
     if request.method == "POST":
         url = request.form.get("url")
+        date = request.form.get("date")
 
         try:
             playlist = Playlist(url)
@@ -111,6 +115,8 @@ def playlist():
                 file_path = os.path.join(playlist_path, video.default_filename)
                 os.rename(file_path, file_path.replace("mp4", "mp3"))
         
+        save_history(url, date, playlist.title, file_type)
+
         try:
             zip_file_name = f"{playlist.title}.zip"
             memory_file = BytesIO()
