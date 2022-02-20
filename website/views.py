@@ -4,7 +4,6 @@ from .models import Video
 from . import db
 
 from pytube import YouTube
-import time
 import os
 
 views = Blueprint("views", __name__)
