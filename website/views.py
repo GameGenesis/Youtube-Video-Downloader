@@ -65,7 +65,7 @@ def home():
             db.session.commit()
         
         flash("Video converted successfully!", category="success")
-
+        print(file_path)
         return send_file(path_or_file=file_path, as_attachment=True)
     return render_template("home.html", user=current_user)
 
