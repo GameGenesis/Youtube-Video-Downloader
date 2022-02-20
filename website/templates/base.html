@@ -22,7 +22,7 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbar">
-            <div class="navbar-nav">
+            <div class="navbar-nav  mr-auto">
                 <a class="nav-item nav-link" id="home" href="/">Home</a>
                 {% if user.is_authenticated %}
                 <a class="nav-item nav-link" id="history" href="/history">History</a>
@@ -30,6 +30,11 @@
                 {% else %}
                 <a class="nav-item nav-link" id="login" href="/login">Login</a>
                 <a class="nav-item nav-link" id="sign-up" href="/sign-up">Sign Up</a>
+                {% endif %}
+            </div>
+            <div class="navbar-nav  ml-auto">
+                {% if user.is_authenticated %}
+                <a class="nav-item nav-link" id="user-name" href="/"><strong>{{ "Hello, " + user.first_name }}</strong></a>
                 {% endif %}
             </div>
         </div>
