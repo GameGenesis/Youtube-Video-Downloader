@@ -36,7 +36,7 @@ def logout():
 def sign_up():
     if request.method == "POST":
         email = request.form.get("email")
-        first_name = request.form.get("firstName")
+        name = request.form.get("name")
         password1 = request.form.get("password1")
         password2 = request.form.get("password2")
 
@@ -45,14 +45,14 @@ def sign_up():
             flash("User already exists.", category="error")
         elif len(email) < 4:
             flash("Email is invalid.", category="error")
-        elif len(first_name) < 2:
-            flash("First name is invalid. Must contin at least 2 characters.", category="error")
+        elif len(name) < 2:
+            flash("Name is invalid. Must contin at least 2 characters.", category="error")
         elif password1 != password2:
             flash("Passwords do not match.", category="error")
         elif len(password1) < 6:
             flash("Password is invalid. Must contin at least 6 characters.", category="error")
         else:
-            new_user = User(email=email, first_name=first_name, password=generate_password_hash(password1, method="sha256"))
+            new_user = User(email=email, name=name, password=generate_password_hash(password1, method="sha256"))
             db.session.add(new_user)
             db.session.commit()
             login_user(new_user, remember=True)
@@ -60,3 +60,15 @@ def sign_up():
             return redirect(url_for("views.home"))
 
     return render_template("sign_up.html", user=current_user)
+
+@auth.route("/delete-account")
+@login_required
+def delete_account():
+    try:
+        db.session.delete(current_user)
+        db.session.commit()
+        logout_user()
+        flash("Deleted account!", category="success")
+    except Exception:
+        flash("Could not delete account.", category="error")
+    return redirect(url_for("views.home"))
