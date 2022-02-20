@@ -14,12 +14,10 @@ views = Blueprint("views", __name__)
 def debug_progress(yt, video):
     yt.register_on_progress_callback(on_progress)
     print(f"Fetching \"{video.title}\"..")
-    print(f"Fetching successful\n")
     print(f"Information: \n"
     f"File size: {round(video.filesize * 0.000001, 2)} mb\n"
     f"Highest Resolution: {video.resolution}\n"
     f"Author: {yt.author}")
-    print("Views: {:,}\n".format(yt.views))
 
     print(f"Downloading \"{video.title}\"..")
 
