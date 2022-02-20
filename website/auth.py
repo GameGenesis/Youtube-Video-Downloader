@@ -17,7 +17,7 @@ def login():
             if check_password_hash(user.password, password):
                 flash("Logged in successfully!", category="success")
                 login_user(user, remember=True)
-                return redirect(url_for("views.home"))
+                return redirect(url_for("views.video"))
             else:
                 flash("Incorrect password.", category="error")
         else:
@@ -30,7 +30,7 @@ def login():
 def logout():
     logout_user()
     flash("Logged out successfuly!", category="success")
-    return redirect(url_for("views.home"))
+    return redirect(url_for("views.video"))
 
 @auth.route("/sign-up", methods=["GET", "POST"])
 def sign_up():
@@ -57,7 +57,7 @@ def sign_up():
             db.session.commit()
             login_user(new_user, remember=True)
             flash("Account created successfully!", category="success")
-            return redirect(url_for("views.home"))
+            return redirect(url_for("views.video"))
 
     return render_template("sign_up.html", user=current_user)
 
@@ -71,4 +71,4 @@ def delete_account():
         flash("Deleted account!", category="success")
     except Exception:
         flash("Could not delete account.", category="error")
-    return redirect(url_for("views.home"))
+    return redirect(url_for("views.video"))

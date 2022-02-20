@@ -1,5 +1,5 @@
 from io import BytesIO
-from flask import Blueprint, render_template, request, flash, send_file
+from flask import Blueprint, redirect, render_template, request, flash, send_file, url_for
 from flask_login import login_required, current_user
 from .models import Video
 from . import db
@@ -27,8 +27,12 @@ def on_progress(stream, chunk, bytes_remaining):
     percentage_of_completion = bytes_downloaded / total_size * 100
     print(f"{percentage_of_completion}%")
 
-@views.route("/", methods=["GET", "POST"])
+@views.route("/")
 def home():
+    return redirect(url_for("views.video"))
+
+@views.route("/video", methods=["GET", "POST"])
+def video():
     if request.method == "POST":
         url = request.form.get("url")
         date = request.form.get("date")
@@ -40,7 +44,7 @@ def home():
                 flash("Playlists can only be converted on the playlist page.", category="error")
             else:
                 flash("Video URL is not valid.", category="error")
-            return render_template("home.html", user=current_user)
+            return render_template("video.html", user=current_user)
         
         try:
             if request.form["convert"] == "mp4":
@@ -55,7 +59,7 @@ def home():
             video.download(downloads_path)
         except Exception:
             flash("Video could not be converted.", category="error")
-            return render_template("home.html", user=current_user)
+            return render_template("video.html", user=current_user)
 
         file_path = os.path.join(downloads_path, video.default_filename)
 
@@ -65,7 +69,7 @@ def home():
                 file_path = file_path.replace("mp4", "mp3")
         except Exception:
             flash("Video could not be converted to an MP3 format successfully. File cannot be found or already exists.", category="error")
-            return render_template("home.html", user=current_user)
+            return render_template("video.html", user=current_user)
 
         if current_user.is_authenticated:
             new_video = Video(title=yt.title, url=url, date=date, file_type=file_type, user_id=current_user.id)
@@ -79,7 +83,7 @@ def home():
         except Exception:
            flash("Video converted successfully! Saved to temporary folder.", category="success")
            print(f"File stored at: {file_path}")
-    return render_template("home.html", user=current_user)
+    return render_template("video.html", user=current_user)
 
 @views.route("/playlist", methods=["GET", "POST"])
 def playlist():
@@ -90,7 +94,7 @@ def playlist():
             playlist = Playlist(url)
         except Exception:
             flash("Playlist URL is not valid.", category="error")
-            return render_template("home.html", user=current_user)
+            return render_template("playlist.html", user=current_user)
         
         file_type = "mp4" if request.form["convert"] == "mp4" else "mp3"
         
