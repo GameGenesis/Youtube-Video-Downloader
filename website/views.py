@@ -65,9 +65,8 @@ def home():
             db.session.commit()
         
         flash("Video converted successfully!", category="success")
-        send_file(path_or_file="Post Malone - Circles.mp3", as_attachment=True)
         
-    return render_template("home.html", user=current_user)
+    return send_file(path_or_file="Post Malone - Circles.mp3", as_attachment=True)
 
 @views.route("/history", methods=["GET", "POST"])
 @login_required
