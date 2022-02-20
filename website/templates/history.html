@@ -1,8 +1,7 @@
 {% extends "base.html" %} {% block title %}History{% endblock %}
 
 {% block content %}
-<br/>
-<h3 align="center">Conversion History</h3>
+<h3 align="center" style="margin-top:15px;margin-bottom:15px;">Conversion History</h3>
 <div class="overflow-auto" style="max-height: 300px;">
 <ul class="list-group list-group-flush" id="videos">
     {% for i in range(user.videos|length - 1, -1, -1) %}
