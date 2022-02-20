@@ -4,7 +4,6 @@ from .models import Video
 from . import db
 
 from pytube import YouTube
-from pathlib import Path
 import os
 
 views = Blueprint("views", __name__)
@@ -45,15 +44,13 @@ def home():
             print("Views: {:,}\n".format(yt.views))
 
             print(f"Downloading \"{video.title}\"..")
-            downloads_path = str(Path.home() / "Downloads")
+            downloads_path = os.path.join(os.getcwd(), "temp")
             video.download(downloads_path)
-
         except Exception:
             flash("Video could not be converted.", category="error")
             return render_template("home.html", user=current_user)
 
         file_path = os.path.join(downloads_path, video.default_filename)
-        print(file_path)
 
         try:
             if file_type == "mp3":
@@ -68,8 +65,10 @@ def home():
             db.session.add(new_video)
             db.session.commit()
         
-        flash("Video converted successfully!", category="success")
-        return send_file(path_or_file=file_path, as_attachment=True)
+        #flash("Video converted successfully!", category="success")
+        downloaded_file = send_file(path_or_file=file_path, as_attachment=True)
+        os.remove(file_path)
+        return downloaded_file
     return render_template("home.html", user=current_user)
 
 @views.route("/history", methods=["GET", "POST"])
