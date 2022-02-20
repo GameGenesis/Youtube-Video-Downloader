@@ -1,3 +1,4 @@
+from io import BytesIO
 from flask import Blueprint, render_template, request, flash, send_file
 from flask_login import login_required, current_user
 from .models import Video
@@ -5,6 +6,7 @@ from . import db
 
 from pytube import YouTube, Playlist
 import os
+import zipfile
 
 views = Blueprint("views", __name__)
 
@@ -76,6 +78,48 @@ def home():
            flash("Video converted successfully! Saved to temporary folder.", category="success")
            print(f"File stored at: {file_path}")
     return render_template("home.html", user=current_user)
+
+@views.route("/playlist", methods=["GET", "POST"])
+def playlist():
+    if request.method == "POST":
+        url = request.form.get("url")
+
+        try:
+            playlist = Playlist(url)
+        except Exception:
+            flash("Playlist URL is not valid.", category="error")
+            return render_template("home.html", user=current_user)
+        
+        file_type = "mp4" if request.form["convert"] == "mp4" else "mp3"
+        
+        downloads_path = os.path.join(os.getcwd(), "temp", playlist.title)
+
+        for url in playlist:
+            yt = YouTube(url)
+            if file_type == "mp4":
+                video = yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first()
+                video.download(downloads_path)
+            else:
+                video = yt.streams.filter(only_audio=True).get_audio_only()
+                video.download(downloads_path)
+                file_path = os.path.join(downloads_path, video.default_filename)
+                os.rename(file_path, file_path.replace("mp4", "mp3"))
+        
+        try:
+            memory_file = BytesIO()
+            with zipfile.ZipFile(memory_file, 'w', zipfile.ZIP_DEFLATED) as zipf:
+                for f_name in downloads_path.iterdir():
+                    zipf.write(f_name)
+            
+            memory_file.seek(0)
+            downloaded_file =  send_file(memory_file, attachment_filename=playlist.title, as_attachment=True)
+            os.remove(downloads_path)
+            return downloaded_file
+        except Exception:
+           flash("Video converted successfully! Saved to temporary folder.", category="success")
+           print(f"File stored at: {downloads_path}")
+    
+    return render_template("playlist.html", user=current_user)
 
 @views.route("/history", methods=["GET", "POST"])
 @login_required
