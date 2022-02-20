@@ -1,10 +1,11 @@
-{% extends "base.html" %} {% block title %}Home{% endblock %}
+{% extends "base.html" %} {% block title %}History{% endblock %}
 
 {% block content %}
 <br/>
 <h3 align="center">Conversion History</h3>
+<div class="overflow-auto" style="max-height: 300px;">
 <ul class="list-group list-group-flush" id="videos">
-    {% for i in range(user.videos|length - 1, 0, -1) %}
+    {% for i in range(user.videos|length - 1, -1, -1) %}
     <li class="list-group-item"><b>{{ user.videos[i].title }}</b> [ File type: <i>{{ user.videos[i].file_type}}</i> | Timestamp: <i>{{ user.videos[i].date }}</i> ]
         <button type="button" class="close" onClick="copyToClipboard('{{ user.videos[i].url }}')" data-toggle="tooltip" data-placement="top" title="Copy URL to Clipboard">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">
@@ -15,4 +16,11 @@
     </li>
     {% endfor %}
 </ul>
+</div>
+{% if user.videos|length > 0 %}
+<br/>
+<form method="POST">
+    <center><button type="submit" class="btn btn-primary">Clear History</button></center>
+</form>
+{% endif %}
 {% endblock %}
