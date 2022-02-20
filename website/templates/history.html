@@ -4,8 +4,8 @@
 <br/>
 <h3 align="center">Conversion History</h3>
 <ul class="list-group list-group-flush" id="videos">
-    {% for video in user.videos %}
-    <li class="list-group-item">{{ video.title + " | " }}{{ video.url + " [" }} {{ video.date }} {{ "]" }}</li>
+    {% for i in range(user.videos|length - 1, 0, -1) %}
+    <li class="list-group-item">{{ user.videos[i].title + " | " }}{{ user.videos[i].file_type + " | " }}{{ user.videos[i].url + " [" }} {{ user.videos[i].date }} {{ "]" }}</li>
     {% endfor %}
 </ul>
 {% endblock %}
