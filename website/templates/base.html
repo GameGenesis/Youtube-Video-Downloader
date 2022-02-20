@@ -33,14 +33,14 @@
                 {% if user.is_authenticated %}
                 <div class="dropdown show">
                     <a class="nav-link dropdown-toggle" href="/" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <strong>{{ "Hello, " + user.first_name }}</strong>
+                        <strong>{{ "Hello, " + user.name }}</strong>
                     </a>
                   
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
                         <a class="dropdown-item" id="history" href="/history">History</a>
                         <a class="dropdown-item" id="logout" href="/logout">Logout</a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" id="delete-account" href="/">Delete Account</a>
+                        <a class="dropdown-item" id="delete-account" href="/delete-account">Delete Account</a>
                     </div>
                   </div>
                 {% endif %}
