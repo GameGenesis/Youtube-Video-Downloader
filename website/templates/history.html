@@ -17,9 +17,10 @@
 </ul>
 </div>
 {% if user.videos|length > 0 %}
-<br/>
 <form method="POST">
     <center><button type="submit" class="btn btn-primary">Clear History</button></center>
 </form>
+{% else %}
+<center>You have not converted any videos yet. Go to the home page to start!</center>
 {% endif %}
 {% endblock %}
