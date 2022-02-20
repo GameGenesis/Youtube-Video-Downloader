@@ -54,7 +54,8 @@ def home():
         try:
             if file_type == "mp3":
                 file_path = os.path.join(downloads_path, video.default_filename)
-                file_path = os.rename(file_path, file_path.replace("mp4", "mp3"))
+                os.rename(file_path, file_path.replace("mp4", "mp3"))
+                file_path = file_path.replace("mp4", "mp3")
         except Exception:
             flash("Video could not be converted to an MP3 format successfully. File cannot be found or already exists.", category="error")
             return render_template("home.html", user=current_user)
