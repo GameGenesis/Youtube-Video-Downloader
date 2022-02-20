@@ -4,6 +4,7 @@ from .models import Video
 from . import db
 
 from pytube import YouTube
+import time
 import os
 
 views = Blueprint("views", __name__)
@@ -66,9 +67,12 @@ def home():
             db.session.commit()
         
         #flash("Video converted successfully!", category="success")
-        downloaded_file = send_file(path_or_file=file_path, as_attachment=True)
-        os.remove(file_path)
-        return downloaded_file
+        try:
+            downloaded_file = send_file(path_or_file=file_path, as_attachment=True)
+            os.remove(file_path)
+            return downloaded_file
+        except Exception:
+           pass 
     return render_template("home.html", user=current_user)
 
 @views.route("/history", methods=["GET", "POST"])
