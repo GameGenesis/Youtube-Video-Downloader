@@ -43,6 +43,8 @@ def video():
 
         try:
             if file_type == "mp3":
+                if os.path.exists(file_path.replace("mp4", "mp3")):
+                    os.remove(file_path.replace("mp4", "mp3"))
                 os.rename(file_path, file_path.replace("mp4", "mp3"))
                 file_path = file_path.replace("mp4", "mp3")
         except Exception:
@@ -77,7 +79,7 @@ def playlist():
         try:
             playlist_path = os.path.join(os.getcwd(), "temp", playlist.title)
 
-            for url in playlist:
+            for index, url in enumerate(playlist):
                 yt = YouTube(url)
                 if file_type == "mp4":
                     video = yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first()
@@ -86,7 +88,14 @@ def playlist():
                     video = yt.streams.filter(only_audio=True).get_audio_only()
                     video.download(playlist_path)
                     file_path = os.path.join(playlist_path, video.default_filename)
+                    if os.path.exists(file_path.replace("mp4", "mp3")):
+                        os.remove(file_path.replace("mp4", "mp3"))
                     os.rename(file_path, file_path.replace("mp4", "mp3"))
+                
+                try: playlist_len = playlist.length
+                except Exception: playlist_len = 1
+                
+                debug_video_progress(yt, video, file_type, f"({index + 1} of {playlist_len}): ")
         except:
             flash("Playlist could not be converted. Playlist may not exist.", category="error")
             return render_template("playlist.html", user=current_user)
@@ -97,6 +106,7 @@ def playlist():
             zip_file_name, memory_file = zip_folder(playlist.title, playlist_path)
             downloaded_file = send_file(memory_file, attachment_filename=zip_file_name, as_attachment=True)
             rmtree(playlist_path)
+            print(f"Downloading playlist \"{playlist.title}\"")
             return downloaded_file
         except Exception:
             flash("Playlist could not be downloaded.", category="error")
@@ -137,9 +147,12 @@ def download_video(yt):
         video = yt.streams.filter(only_audio=True).get_audio_only()
         file_type = "mp3"
 
-    debug_progress(yt, video)
+    debug_video_progress(yt, video, file_type)
+
     downloads_path = os.path.join(os.getcwd(), "temp")
     video.download(downloads_path)
+    print(f"Downloading \"{video.title}\"")
+
     return video, file_type, downloads_path
 
 def save_history(url, date, title, file_type):
@@ -150,18 +163,7 @@ def save_history(url, date, title, file_type):
 
 #Debug functions
 
-def debug_progress(yt, video):
-    yt.register_on_progress_callback(on_progress)
-    print(f"Fetching \"{video.title}\"..")
-    print(f"Information: \n"
-    f"File size: {round(video.filesize * 0.000001, 2)} mb\n"
-    f"Highest Resolution: {video.resolution}\n"
-    f"Author: {yt.author}")
-
-    print(f"Downloading \"{video.title}\"..")
-
-def on_progress(stream, chunk, bytes_remaining):
-    total_size = stream.filesize
-    bytes_downloaded = total_size - bytes_remaining
-    percentage_of_completion = bytes_downloaded / total_size * 100
-    print(f"{percentage_of_completion}%")
+def debug_video_progress(yt, video, file_type, extra_info=""):
+    highest_res = f", Highest Resolution: {video.resolution}" if file_type == "mp4" else ""
+    print(f"Fetching {extra_info}\"{video.title}\"")
+    print(f"[File size: {round(video.filesize * 0.000001, 2)} MB{highest_res}, Author: {yt.author}]\n")
