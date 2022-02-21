@@ -75,6 +75,7 @@ def delete_account():
             db.session.commit()
             logout_user()
             flash("Deleted account!", category="success")
+            return redirect(url_for("views.video"))
         except Exception:
             flash("Could not delete account.", category="error")
     return render_template("delete_account.html", user=current_user)
