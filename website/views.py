@@ -65,11 +65,11 @@ def video():
 @views.route("/playlist", methods=["GET", "POST"])
 def playlist():
     if request.method == "POST":
-        url = request.form.get("url")
+        playlist_url = request.form.get("url")
         date = request.form.get("date")
 
         try:
-            playlist = Playlist(url)
+            playlist = Playlist(playlist_url)
         except Exception:
             flash("Playlist URL is not valid.", category="error")
             return render_template("playlist.html", user=current_user)
@@ -100,7 +100,7 @@ def playlist():
             flash("Playlist could not be converted. Playlist may not exist.", category="error")
             return render_template("playlist.html", user=current_user)
         
-        save_history(url, date, playlist.title, file_type)
+        save_history(playlist_url, date, playlist.title, file_type)
 
         try:
             zip_file_name, memory_file = zip_folder(playlist.title, playlist_path)
