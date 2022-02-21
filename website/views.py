@@ -5,6 +5,7 @@ from .models import Video
 from . import db
 
 from pytube import YouTube, Playlist
+from youtubesearchpython import VideosSearch, PlaylistsSearch
 import os
 import zipfile
 from shutil import rmtree
@@ -128,6 +129,18 @@ def history():
 
 @views.route("/search", methods=["GET", "POST"])
 def search():
+    if request.method == "POST":
+        title = request.form.get("title")
+
+        playlist_len = ""
+        if request.form["search"] == "video":
+            results = VideosSearch(title, limit=10).result()["result"]
+        elif request.form["search"] == "playlist":
+            results = PlaylistsSearch(title, limit=10).result()["result"]
+            playlist_len = f"Videos: {len(results.videos)}"
+        
+        return render_template("search.html", user=current_user, results=results)
+
     return render_template("search.html", user=current_user)
 
 #Functions
