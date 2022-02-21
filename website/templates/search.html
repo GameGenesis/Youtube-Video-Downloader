@@ -1,0 +1,19 @@
+{% extends "base.html" %} {% block title %}Search{% endblock %}
+
+{% block content %}
+<form method="POST">
+    <h3 align="center" style="margin-top:15px;margin-bottom:15px;">Search Youtube Titles</h3>
+    <div class="form-group">
+        <input
+        type="text"
+        class="form-control"
+        id="title" name="title"
+        placeholder="Enter video or playlist title"
+        required>
+    </div>
+    <center>
+    <button type="submit" class="btn btn-primary" name="search" value="video">Search Videos</button>&nbsp;&nbsp;
+    <button type="submit" class="btn btn-primary" name="search" value="playlist">Search Playlists</button>
+    </center>
+</form>
+{% endblock %}

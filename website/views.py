@@ -126,6 +126,10 @@ def history():
             flash("Could not clear history.", category="error")
     return render_template("history.html", user=current_user)
 
+@views.route("/search", methods=["GET", "POST"])
+def search():
+    return render_template("search.html", user=current_user)
+
 #Functions
 
 def zip_folder(name, path):
