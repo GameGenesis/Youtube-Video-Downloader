@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for
+from flask import Blueprint, render_template, request, flash, redirect, session, url_for
 from .models import User
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
@@ -28,6 +28,7 @@ def login():
 @auth.route("/logout")
 @login_required
 def logout():
+    session.clear()
     logout_user()
     flash("Logged out successfuly!", category="success")
     return redirect(url_for("views.video"))
