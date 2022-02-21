@@ -60,10 +60,10 @@ def video():
         
         try:
             downloaded_file = send_file(path_or_file=file_path, as_attachment=True)
-            os.remove(file_path)
+            rmtree(downloads_path)
             return downloaded_file
         except Exception:
-           flash("Video converted successfully! Saved to temporary folder.", category="success")
+           flash("Video converted successfully, but the file couldn't be sent to the browser! Saved to temporary folder.", category="warning")
            print(f"File stored at: {file_path}")
 
     session["playlist_url"] = ""
@@ -88,7 +88,8 @@ def playlist():
         file_type = "mp4" if request.form["convert"] == "mp4" else "mp3"
         
         try:
-            playlist_path = os.path.join(os.getcwd(), "temp", playlist.title)
+            downloads_path = os.path.join(os.getcwd(), "temp")
+            playlist_path = os.path.join(downloads_path, playlist.title)
 
             for index, url in enumerate(playlist):
                 yt = YouTube(url)
@@ -116,10 +117,11 @@ def playlist():
         try:
             zip_file_name, memory_file = zip_folder(playlist.title, playlist_path)
             downloaded_file = send_file(memory_file, attachment_filename=zip_file_name, as_attachment=True)
-            rmtree(playlist_path)
+            rmtree(downloads_path)
             return downloaded_file
         except Exception:
-            flash("Playlist could not be downloaded.", category="error")
+            flash("Playlist converted successfully, but the zipped folder couldn't be sent to the browser! Saved to temporary folder.", category="warning")
+            print(f"Folder stored at: {downloads_path}")
     
     session["video_url"] = ""
     try: url = session["playlist_url"]
