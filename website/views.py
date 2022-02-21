@@ -159,7 +159,7 @@ def search():
             elif request.form["search"] == "playlist":
                 results = PlaylistsSearch(title, limit=10).result()["result"]
             
-            return render_template("search.html", user=current_user, results=results)
+            return render_template("search.html", user=current_user, results=results, title=title)
         else:
             redirect_page = convert_video_redirect("search")
             return redirect(url_for(redirect_page))
