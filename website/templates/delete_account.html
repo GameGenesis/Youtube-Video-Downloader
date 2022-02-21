@@ -1,0 +1,24 @@
+{% extends "base.html" %} {% block title %}Delete Account{% endblock %}
+
+{% block content %}
+<form method="POST">
+    <label style="margin-top:15px;margin-bottom:15px;font-size:1.1em;">
+        Type <code>delete-account</code> to confirm deleting your account.
+    </label>
+    <div class="form-row align-items-center">
+        <div class="col-auto">
+          <label class="sr-only" for="inlineFormInputGroup">Confirmation message</label>
+          <div class="input-group mb-2">
+            <div class="input-group-prepend">
+              <div class="input-group-text">{{ user.name }}/</div>
+            </div>
+            <input type="text" class="form-control" name="confirm-message" id="confirm-message" placeholder="Confirmation message">
+          </div>
+        </div>
+        <div class="col-auto">
+          <button type="submit" class="btn btn-primary mb-2"name="confirm">Delete Account</button>
+        </div>
+    </div>
+    </div>
+</form>
+{% endblock %}
