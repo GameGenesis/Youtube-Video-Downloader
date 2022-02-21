@@ -61,14 +61,20 @@ def sign_up():
 
     return render_template("sign_up.html", user=current_user)
 
-@auth.route("/delete-account")
+@auth.route("/delete-account", methods=["GET", "POST"])
 @login_required
 def delete_account():
-    try:
-        db.session.delete(current_user)
-        db.session.commit()
-        logout_user()
-        flash("Deleted account!", category="success")
-    except Exception:
-        flash("Could not delete account.", category="error")
-    return redirect(url_for("views.video"))
+    if request.method == "POST":
+        confirm_message = request.form.get("confirm-message")
+        if confirm_message != "delete-account":
+            flash("Confirmation message is incorrect.", category="error")
+            return render_template("delete_account.html", user=current_user) 
+
+        try:
+            db.session.delete(current_user)
+            db.session.commit()
+            logout_user()
+            flash("Deleted account!", category="success")
+        except Exception:
+            flash("Could not delete account.", category="error")
+    return render_template("delete_account.html", user=current_user)
