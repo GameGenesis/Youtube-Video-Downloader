@@ -51,7 +51,7 @@ def video():
             flash("Video could not be converted to an MP3 format successfully. File cannot be found or already exists.", category="error")
             return render_template("video.html", user=current_user)
 
-        save_history(url, date, video.title, file_type)
+        save_history(url, date, video.title, "video", file_type)
         
         try:
             downloaded_file = send_file(path_or_file=file_path, as_attachment=True)
@@ -100,7 +100,7 @@ def playlist():
             flash("Playlist could not be converted. Playlist may not exist.", category="error")
             return render_template("playlist.html", user=current_user)
         
-        save_history(playlist_url, date, playlist.title, file_type)
+        save_history(playlist_url, date, playlist.title, "playlist", file_type)
 
         try:
             zip_file_name, memory_file = zip_folder(playlist.title, playlist_path)
@@ -155,9 +155,9 @@ def download_video(yt):
 
     return video, file_type, downloads_path
 
-def save_history(url, date, title, file_type):
+def save_history(url, date, title, link_type, file_type):
     if current_user.is_authenticated:
-        new_video = Video(title=title, url=url, date=date, file_type=file_type, user_id=current_user.id)
+        new_video = Video(title=title, url=url, date=date, link_type=link_type, file_type=file_type, user_id=current_user.id)
         db.session.add(new_video)
         db.session.commit()
 
