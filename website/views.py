@@ -18,6 +18,7 @@ views = Blueprint("views", __name__)
 #Redirects to video conversion page (/video)
 @views.route("/")
 def home():
+    session.clear()
     return redirect(url_for("views.video"))
 
 @views.route("/video", methods=["GET", "POST"])
@@ -25,7 +26,8 @@ def video():
     if request.method == "POST":
         url = request.form.get("url")
         date = request.form.get("date")
-        session["url"] = ""
+        
+        session.clear()
 
         try:
             yt = YouTube(url)
@@ -64,7 +66,7 @@ def video():
            flash("Video converted successfully! Saved to temporary folder.", category="success")
            print(f"File stored at: {file_path}")
 
-    try: url = session["url"]
+    try: url = session["video_url"]
     except Exception: url = ""
     return render_template("video.html", user=current_user, url=url)
 
@@ -73,6 +75,8 @@ def playlist():
     if request.method == "POST":
         playlist_url = request.form.get("url")
         date = request.form.get("date")
+
+        session.clear()
 
         try:
             playlist = Playlist(playlist_url)
@@ -112,12 +116,13 @@ def playlist():
             zip_file_name, memory_file = zip_folder(playlist.title, playlist_path)
             downloaded_file = send_file(memory_file, attachment_filename=zip_file_name, as_attachment=True)
             rmtree(playlist_path)
-            print(f"Downloading playlist \"{playlist.title}\"")
             return downloaded_file
         except Exception:
             flash("Playlist could not be downloaded.", category="error")
     
-    return render_template("playlist.html", user=current_user)
+    try: url = session["playlist_url"]
+    except Exception: url = ""
+    return render_template("playlist.html", user=current_user, url=url)
 
 @views.route("/history", methods=["GET", "POST"])
 @login_required
@@ -130,6 +135,8 @@ def history():
         except Exception:
             db.session.rollback()
             flash("Could not clear history.", category="error")
+    
+    session.clear()
     return render_template("history.html", user=current_user)
 
 @views.route("/search", methods=["GET", "POST"])
@@ -145,9 +152,15 @@ def search():
             
             return render_template("search.html", user=current_user, results=results)
         else:
-            url = request.form.get("search")
-            session["url"] = url
-            return redirect(url_for("views.video"))
+            conversion_info = request.form.get("search")
+            url, r_type = conversion_info.split()[0], conversion_info.split()[1]
+            if r_type == "video":
+                session["video_url"] = url
+                redirect_page = "views.video"
+            else:
+                session["playlist_url"] = url
+                redirect_page = "views.playlist"
+            return redirect(url_for(redirect_page))
 
     return render_template("search.html", user=current_user)
 
@@ -176,7 +189,6 @@ def download_video(yt):
 
     downloads_path = os.path.join(os.getcwd(), "temp")
     video.download(downloads_path)
-    print(f"Downloading \"{video.title}\"")
 
     return video, file_type, downloads_path
 
