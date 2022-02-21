@@ -11,11 +11,8 @@
         placeholder="Enter video or playlist title"
         value = "{{ title }}">
     </div>
-    <center>
-    <button type="submit" class="btn btn-primary" name="search" value="video">Search Videos</button>&nbsp;&nbsp;
-    <button type="submit" class="btn btn-primary" name="search" value="playlist">Search Playlists</button>
-    </center>
-<div class="overflow-auto" style="max-height: 300px;margin-top:15px;">
+{% if results|length > 0 %}
+<div class="overflow-auto" style="max-height:300px;margin-bottom:15px;">
 <ul class="list-group list-group-flush" id="videos">
 {% for r in results %}
     {% set link = r["link"] %}
@@ -46,5 +43,10 @@
 {% endfor %}
 </ul>
 </div>
+{% endif %}
+<center>
+    <button type="submit" class="btn btn-primary" name="search" value="video">Search Videos</button>&nbsp;&nbsp;
+    <button type="submit" class="btn btn-primary" name="search" value="playlist">Search Playlists</button>
+</center>
 </form>
 {% endblock %}
