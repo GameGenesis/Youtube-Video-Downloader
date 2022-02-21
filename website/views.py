@@ -130,13 +130,18 @@ def playlist():
 @login_required
 def history():
     if request.method == "POST":
-        try:
-            db.session.query(Video).delete()
-            db.session.commit()
-            flash("Cleared History", category="success")
-        except Exception:
-            db.session.rollback()
-            flash("Could not clear history.", category="error")
+        if "convert" not in request.form:
+            try:
+                db.session.query(Video).delete()
+                db.session.commit()
+                flash("Cleared History", category="success")
+                return render_template("history.html", user=current_user)
+            except Exception:
+                db.session.rollback()
+                flash("Could not clear history.", category="error")
+        else:
+            redirect_page = convert_video_redirect("convert")
+            return redirect(url_for(redirect_page))
     
     session.clear()
     return render_template("history.html", user=current_user)
@@ -154,20 +159,24 @@ def search():
             
             return render_template("search.html", user=current_user, results=results)
         else:
-            conversion_info = request.form.get("search")
-            url, r_type = conversion_info.split()[0], conversion_info.split()[1]
-            if r_type == "video":
-                session["video_url"] = url
-                redirect_page = "views.video"
-            else:
-                session["playlist_url"] = url
-                redirect_page = "views.playlist"
+            redirect_page = convert_video_redirect("search")
             return redirect(url_for(redirect_page))
 
     session.clear()
     return render_template("search.html", user=current_user)
 
 #Functions
+
+def convert_video_redirect(form_name):
+    conversion_info = request.form.get(form_name)
+    url, r_type = conversion_info.split()[0], conversion_info.split()[1]
+    if r_type == "video":
+        session["video_url"] = url
+        redirect_page = "views.video"
+    else:
+        session["playlist_url"] = url
+        redirect_page = "views.playlist"
+    return redirect_page
 
 def zip_folder(name, path):
     zip_file_name = f"{name}.zip"
