@@ -1,5 +1,4 @@
 from io import BytesIO
-import json
 from flask import Blueprint, redirect, render_template, request, flash, send_file, url_for, session
 from flask_login import login_required, current_user
 from .models import Video
@@ -7,11 +6,15 @@ from . import db
 
 from pytube import YouTube, Playlist
 from youtubesearchpython import VideosSearch, PlaylistsSearch
+from moviepy.editor import VideoFileClip
+import mutagen
 import os
 import zipfile
 from shutil import rmtree
 
 views = Blueprint("views", __name__)
+
+include_mp3_metadata = False
 
 #Pages
 
@@ -50,12 +53,16 @@ def video():
             if file_type == "mp3":
                 if os.path.exists(file_path.replace("mp4", "mp3")):
                     os.remove(file_path.replace("mp4", "mp3"))
-                os.rename(file_path, file_path.replace("mp4", "mp3"))
-                file_path = file_path.replace("mp4", "mp3")
+                if include_mp3_metadata:
+                    file_path = convert_to_mp3_with_metadata(file_path)
+                else:
+                    os.rename(file_path, file_path.replace("mp4", "mp3"))
+                    file_path = file_path.replace("mp4", "mp3")
         except Exception:
             flash("Video could not be converted to an MP3 format successfully. File cannot be found or already exists.", category="error")
             return render_template("video.html", user=current_user)
 
+        update_metadata(file_path, yt.title, yt.author)
         save_history(url, date, video.title, "video", file_type)
         
         try:
@@ -169,6 +176,24 @@ def search():
 
 #Functions
 
+def convert_to_mp3_with_metadata(file_path):
+    video_clip = VideoFileClip(file_path)
+    file_path = file_path.replace("mp4", "mp3")
+    audio_clip = video_clip.audio
+    audio_clip.write_audiofile(file_path)
+    audio_clip.close()
+    video_clip.close()
+    os.remove(file_path.replace("mp3", "mp4"))
+    return file_path
+
+def update_metadata(file_path, title, artist, album=""):
+    with open(file_path, 'r+b') as file:
+        media_file = mutagen.File(file, easy=True)
+        media_file["title"] = title
+        if album: media_file["album"] = album
+        media_file["artist"] = artist
+        media_file.save(file)
+
 def convert_video_redirect(form_name):
     conversion_info = request.form.get(form_name)
     url, r_type = conversion_info.split()[0], conversion_info.split()[1]
@@ -196,7 +221,10 @@ def download_video(yt):
         video = yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first()
         file_type = "mp4"
     elif request.form["convert"] == "mp3":
-        video = yt.streams.filter(only_audio=True).get_audio_only()
+        if include_mp3_metadata:
+            video = yt.streams.filter(progressive=True, file_extension='mp4').order_by('abr').desc().first()
+        else:
+            video = yt.streams.filter(only_audio=True).get_audio_only()
         file_type = "mp3"
 
     debug_video_progress(yt, video, file_type)
