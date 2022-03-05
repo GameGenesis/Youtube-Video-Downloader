@@ -17,16 +17,17 @@ views = Blueprint("views", __name__)
 
 include_mp3_metadata = False
 
-# Pages
+## Pages
 
-# Redirects to video conversion page (/video)
 @views.route("/")
 def home():
+    # Clears the session data and redirects to video conversion page: "/video"
     session.clear()
     return redirect(url_for("views.video"))
 
 @views.route("/video", methods=["GET", "POST"])
 def video():
+    # Check if post request
     if request.method == "POST":
         url = request.form.get("url")
         date = request.form.get("date")
@@ -91,6 +92,7 @@ def video():
 
 @views.route("/playlist", methods=["GET", "POST"])
 def playlist():
+    # Check if post request
     if request.method == "POST":
         playlist_url = request.form.get("url")
         date = request.form.get("date")
@@ -164,8 +166,11 @@ def playlist():
 @views.route("/history", methods=["GET", "POST"])
 @login_required
 def history():
+    # Check if post request
     if request.method == "POST":
+        # If the button pressed is not a convert button; i.e. the button pressed was clear history
         if "convert" not in request.form:
+            # Try clearing user history
             try:
                 db.session.query(Video).delete()
                 db.session.commit()
@@ -174,33 +179,38 @@ def history():
             except Exception:
                 db.session.rollback()
                 flash("Could not clear history.", category="error")
-        else:
+        else: # If the button pressed was a convert button
             redirect_page = convert_video_redirect("convert")
             return redirect(url_for(redirect_page))
     
+    # Clear the session data
     session.clear()
     return render_template("history.html", user=current_user)
 
 @views.route("/search", methods=["GET", "POST"])
 def search():
+    # Check if post request
     if request.method == "POST":
+        # If either the search video or search playlist buttons were pressed
         if request.form["search"] == "video" or request.form["search"] == "playlist":
             title = request.form.get("title")
 
+            # Display top 10 search results
             if request.form["search"] == "video":
                 results = VideosSearch(title, limit=10).result()["result"]
             elif request.form["search"] == "playlist":
                 results = PlaylistsSearch(title, limit=10).result()["result"]
             
             return render_template("search.html", user=current_user, results=results, title=title)
-        else:
+        else: # If the button pressed was a convert button
             redirect_page = convert_video_redirect("search")
             return redirect(url_for(redirect_page))
 
+    # Clear the session data
     session.clear()
     return render_template("search.html", user=current_user)
 
-#Functions
+## Functions
 
 def convert_to_mp3_with_metadata(file_path):
     video_clip = VideoFileClip(file_path)
