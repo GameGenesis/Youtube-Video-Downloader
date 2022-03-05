@@ -7,9 +7,9 @@ class Video(db.Model):
     title = db.Column(db.String(100))
     url = db.Column(db.String(150))
     date = db.Column(db.DateTime(timezone=True), default=func.now())
-    link_type = db.Column(db.String(10))
-    file_type = db.Column(db.String(4))
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    link_type = db.Column(db.String(10)) # video or playlist
+    file_type = db.Column(db.String(4)) # mp3 or mp4
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id")) # links to distinct user key in the database
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)

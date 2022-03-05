@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from os import path, environ
 
+# Create the database
 db = SQLAlchemy()
 DB_NAME = "database.db"
 
@@ -22,6 +23,7 @@ def create_app():
 
     create_database(app)
 
+    # Set the view after login to be the video page
     login_manager = LoginManager()
     login_manager.login_view = 'views.video'
     login_manager.init_app(app)
