@@ -103,6 +103,7 @@ def playlist():
                 if file_type == "mp4":
                     video = yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first()
                     video.download(playlist_path)
+                    file_path = os.path.join(playlist_path, video.default_filename)
                 else:
                     video = yt.streams.filter(only_audio=True).get_audio_only()
                     video.download(playlist_path)
@@ -111,6 +112,8 @@ def playlist():
                         os.remove(file_path.replace("mp4", "mp3"))
                     os.rename(file_path, file_path.replace("mp4", "mp3"))
                 
+                update_metadata(file_path, yt.title, yt.author, playlist.title)
+
                 try: playlist_len = playlist.length
                 except Exception: playlist_len = 1
                 
