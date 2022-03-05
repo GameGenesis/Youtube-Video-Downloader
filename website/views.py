@@ -213,6 +213,7 @@ def search():
 ## Functions
 
 def convert_to_mp3_with_metadata(file_path):
+    # Use moviepy to convert an mp4 to an mp3 with metadata support. Delete mp4 afterwards
     video_clip = VideoFileClip(file_path)
     file_path = file_path.replace("mp4", "mp3")
     audio_clip = video_clip.audio
@@ -223,6 +224,7 @@ def convert_to_mp3_with_metadata(file_path):
     return file_path
 
 def update_metadata(file_path, title, artist, album=""):
+    # Update the file metadata according to YouTube video details
     with open(file_path, 'r+b') as file:
         media_file = mutagen.File(file, easy=True)
         media_file["title"] = title
@@ -231,6 +233,7 @@ def update_metadata(file_path, title, artist, album=""):
         media_file.save(file)
 
 def convert_video_redirect(form_name):
+    # Save video url in session data and redirect to corresponding page
     conversion_info = request.form.get(form_name)
     url, r_type = conversion_info.split()[0], conversion_info.split()[1]
     if r_type == "video":
@@ -242,6 +245,7 @@ def convert_video_redirect(form_name):
     return redirect_page
 
 def zip_folder(name, path):
+    # Zip a folder
     zip_file_name = f"{name}.zip"
     memory_file = BytesIO()
     with zipfile.ZipFile(memory_file, 'w', zipfile.ZIP_DEFLATED) as zipf:
@@ -253,6 +257,7 @@ def zip_folder(name, path):
     return zip_file_name, memory_file
 
 def download_video(yt):
+    # Download a video and debug progress
     if request.form["convert"] == "mp4":
         video = yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first()
         file_type = "mp4"
@@ -271,12 +276,13 @@ def download_video(yt):
     return video, file_type, downloads_path
 
 def save_history(url, date, title, link_type, file_type):
+    # Save user history data in the generated database
     if current_user.is_authenticated:
         new_video = Video(title=title, url=url, date=date, link_type=link_type, file_type=file_type, user_id=current_user.id)
         db.session.add(new_video)
         db.session.commit()
 
-#Debug functions
+## Debug functions
 
 def debug_video_progress(yt, video, file_type, extra_info=""):
     highest_res = f", Highest Resolution: {video.resolution}" if file_type == "mp4" else ""
