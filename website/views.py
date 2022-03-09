@@ -110,11 +110,11 @@ def playlist():
         file_type = "mp4" if request.form["convert"] == "mp4" else "mp3"
         
         # Try downloading all the files in the playlist
-        try:
-            downloads_path = os.path.join(os.getcwd(), "temp")
-            playlist_path = os.path.join(downloads_path, playlist.title)
+        downloads_path = os.path.join(os.getcwd(), "temp")
+        playlist_path = os.path.join(downloads_path, playlist.title)
 
-            for index, url in enumerate(playlist):
+        for index, url in enumerate(playlist):
+            try:
                 yt = YouTube(url)
                 if file_type == "mp4":
                     video = yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first()
@@ -129,19 +129,20 @@ def playlist():
                     if os.path.exists(file_path.replace("mp4", "mp3")):
                         os.remove(file_path.replace("mp4", "mp3"))
                     os.rename(file_path, file_path.replace("mp4", "mp3"))
-                
-                # Update file metadata
-                update_metadata(file_path, yt.title, yt.author, playlist.title)
+                    file_path = file_path.replace("mp4", "mp3")
 
-                # Set playlist length. If there is only one video, default to one
-                try: playlist_len = playlist.length
-                except Exception: playlist_len = 1
-                
-                # Debug the video download progress
-                debug_video_progress(yt, video, file_type, f"({index + 1} of {playlist_len}): ")
-        except:
-            flash("Playlist could not be converted. Playlist may not exist.", category="error")
-            return render_template("playlist.html", user=current_user)
+                # Try updating file metadata
+                update_metadata(file_path, yt.title, yt.author, playlist.title)
+            except Exception:
+                print(f"There was an error converting {yt.title}. Video may not exist!")
+                continue
+
+            # Set playlist length. If there is only one video, default to one
+            try: playlist_len = playlist.length
+            except Exception: playlist_len = 1
+            
+            # Debug the video download progress
+            debug_video_progress(yt, video, file_type, f"({index + 1} of {playlist_len}): ")
         
         # Save conversion to user history
         save_history(playlist_url, date, playlist.title, "playlist", file_type)
