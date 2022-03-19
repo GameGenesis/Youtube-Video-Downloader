@@ -208,7 +208,7 @@ def search():
 
 ## Functions
 
-def convert_to_mp3_with_metadata(file_path):
+def convert_to_mp3_with_metadata(file_path: str) -> str:
     # Use moviepy to convert an mp4 to an mp3 with metadata support. Delete mp4 afterwards
     audio_clip = AudioFileClip(file_path)
     file_path = file_path.replace("mp4", "mp3")
@@ -217,7 +217,7 @@ def convert_to_mp3_with_metadata(file_path):
     os.remove(file_path.replace("mp3", "mp4"))
     return file_path
 
-def update_metadata(file_path, title, artist, album=""):
+def update_metadata(file_path: str, title: str, artist: str, album: str="") -> None:
     # Update the file metadata according to YouTube video details
     with open(file_path, 'r+b') as file:
         media_file = mutagen.File(file, easy=True)
@@ -226,7 +226,7 @@ def update_metadata(file_path, title, artist, album=""):
         media_file["artist"] = artist
         media_file.save(file)
 
-def convert_video_redirect(form_name):
+def convert_video_redirect(form_name: str) -> str:
     # Save video url in session data and redirect to corresponding page
     conversion_info = request.form.get(form_name)
     url, r_type = conversion_info.split()[0], conversion_info.split()[1]
@@ -238,7 +238,7 @@ def convert_video_redirect(form_name):
         redirect_page = "views.playlist"
     return redirect_page
 
-def zip_folder(name, path):
+def zip_folder(name: str, path: str) -> tuple[str, BytesIO]:
     # Zip a folder
     zip_file_name = f"{name}.zip"
     memory_file = BytesIO()
@@ -250,7 +250,7 @@ def zip_folder(name, path):
     memory_file.seek(0)
     return zip_file_name, memory_file
 
-def download_video(yt, file_type, downloads_path, debug=False):
+def download_video(yt: YouTube, file_type: str, downloads_path: str, debug: bool=False):
     # Download a video and debug progress
     if file_type == "mp4":
         video = yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first()
@@ -263,7 +263,7 @@ def download_video(yt, file_type, downloads_path, debug=False):
     video.download(downloads_path)
     return video
 
-def save_history(url, date, title, link_type, file_type):
+def save_history(url: str, date: str, title: str, link_type: str, file_type: str) -> None:
     # Save user history data in the generated database
     if current_user.is_authenticated:
         new_video = Video(title=title, url=url, date=date, link_type=link_type, file_type=file_type, user_id=current_user.id)
@@ -272,7 +272,7 @@ def save_history(url, date, title, link_type, file_type):
 
 ## Debug functions
 
-def debug_video_progress(yt, video, file_type, extra_info=""):
+def debug_video_progress(yt: YouTube, video, file_type: str, extra_info: str=""):
     highest_res = f", Highest Resolution: {video.resolution}" if file_type == "mp4" else ""
     print(f"Fetching {extra_info}\"{video.title}\"")
     print(f"[File size: {round(video.filesize * 0.000001, 2)} MB{highest_res}, Author: {yt.author}]\n")
