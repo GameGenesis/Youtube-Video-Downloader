@@ -5,7 +5,7 @@ from . import db
 
 from pytube import YouTube, Playlist
 from youtubesearchpython import VideosSearch, PlaylistsSearch
-from moviepy.editor import VideoFileClip
+from moviepy.editor import AudioFileClip
 import mutagen
 
 from io import BytesIO
@@ -14,8 +14,6 @@ import os
 import zipfile
 
 views = Blueprint("views", __name__)
-
-include_mp3_metadata = False
 
 ## Pages
 
@@ -59,11 +57,7 @@ def video():
                 if os.path.exists(file_path.replace("mp4", "mp3")):
                     os.remove(file_path.replace("mp4", "mp3"))
                 
-                if include_mp3_metadata:
-                    file_path = convert_to_mp3_with_metadata(file_path)
-                else:
-                    os.rename(file_path, file_path.replace("mp4", "mp3"))
-                    file_path = file_path.replace("mp4", "mp3")
+                file_path = convert_to_mp3_with_metadata(file_path)
         except Exception:
             flash("Video could not be converted to an MP3 format successfully. File cannot be found or already exists.", category="error")
             return render_template("video.html", user=current_user)
@@ -215,12 +209,10 @@ def search():
 
 def convert_to_mp3_with_metadata(file_path):
     # Use moviepy to convert an mp4 to an mp3 with metadata support. Delete mp4 afterwards
-    video_clip = VideoFileClip(file_path)
+    audio_clip = AudioFileClip(file_path)
     file_path = file_path.replace("mp4", "mp3")
-    audio_clip = video_clip.audio
     audio_clip.write_audiofile(file_path)
     audio_clip.close()
-    video_clip.close()
     os.remove(file_path.replace("mp3", "mp4"))
     return file_path
 
@@ -263,10 +255,7 @@ def download_video(yt):
         video = yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first()
         file_type = "mp4"
     elif request.form["convert"] == "mp3":
-        if include_mp3_metadata:
-            video = yt.streams.filter(progressive=True, file_extension='mp4').order_by('abr').desc().first()
-        else:
-            video = yt.streams.filter(only_audio=True).get_audio_only()
+        video = yt.streams.filter(only_audio=True).get_audio_only()
         file_type = "mp3"
 
     debug_video_progress(yt, video, file_type)
