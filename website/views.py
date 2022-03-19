@@ -42,11 +42,15 @@ def video():
                 flash("Video URL is not valid.", category="error")
             return render_template("video.html", user=current_user)
         
+        # Assign the file type and donwloads path
+        file_type = "mp4" if request.form["convert"] == "mp4" else "mp3"
+        downloads_path = os.path.join(os.getcwd(), "temp")
+
         # Try downloading the converted video
         try:
-            video, file_type, downloads_path = download_video(yt)
+            video = download_video(yt, file_type, downloads_path, True)
         except Exception:
-            flash("Video could not be converted.", category="error")
+            flash("Video could not be downloaded.", category="error")
             return render_template("video.html", user=current_user)
 
         file_path = os.path.join(downloads_path, video.default_filename)
@@ -54,8 +58,9 @@ def video():
         # Convert to mp3
         try:
             if file_type == "mp3":
-                if os.path.exists(file_path.replace("mp4", "mp3")):
-                    os.remove(file_path.replace("mp4", "mp3"))
+                file_path_mp3 = file_path.replace("mp4", "mp3")
+                if os.path.exists(file_path_mp3):
+                    os.remove(file_path_mp3)
                 
                 file_path = convert_to_mp3_with_metadata(file_path)
         except Exception:
@@ -110,22 +115,18 @@ def playlist():
         for index, url in enumerate(playlist):
             try:
                 yt = YouTube(url)
-                if file_type == "mp4":
-                    video = yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first()
-                    video.download(playlist_path)
-                    file_path = os.path.join(playlist_path, video.default_filename)
-                else:
-                    video = yt.streams.filter(only_audio=True).get_audio_only()
-                    video.download(playlist_path)
-                    file_path = os.path.join(playlist_path, video.default_filename)
+                video = download_video(yt, file_type, playlist_path, False)
+                file_path = os.path.join(playlist_path, video.default_filename)
 
-                    # Convert to mp3
-                    if os.path.exists(file_path.replace("mp4", "mp3")):
-                        os.remove(file_path.replace("mp4", "mp3"))
-                    os.rename(file_path, file_path.replace("mp4", "mp3"))
-                    file_path = file_path.replace("mp4", "mp3")
 
-                # Try updating file metadata
+                if file_type == "mp3":
+                    file_path_mp3 = file_path.replace("mp4", "mp3")
+                    if os.path.exists(file_path_mp3):
+                        os.remove(file_path_mp3)
+                    
+                    file_path = convert_to_mp3_with_metadata(file_path)
+
+                # Update file metadata
                 update_metadata(file_path, yt.title, yt.author, playlist.title)
             except Exception:
                 print(f"There was an error converting {yt.title}. Video may not exist!")
@@ -249,21 +250,18 @@ def zip_folder(name, path):
     memory_file.seek(0)
     return zip_file_name, memory_file
 
-def download_video(yt):
+def download_video(yt, file_type, downloads_path, debug=False):
     # Download a video and debug progress
-    if request.form["convert"] == "mp4":
+    if file_type == "mp4":
         video = yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first()
-        file_type = "mp4"
-    elif request.form["convert"] == "mp3":
+    else:
         video = yt.streams.filter(only_audio=True).get_audio_only()
-        file_type = "mp3"
 
-    debug_video_progress(yt, video, file_type)
+    if debug:
+        debug_video_progress(yt, video, file_type)
 
-    downloads_path = os.path.join(os.getcwd(), "temp")
     video.download(downloads_path)
-
-    return video, file_type, downloads_path
+    return video
 
 def save_history(url, date, title, link_type, file_type):
     # Save user history data in the generated database
