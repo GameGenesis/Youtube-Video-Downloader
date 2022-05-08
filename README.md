@@ -11,8 +11,8 @@ Convert a YouTube video or playlist to MP3/MP4. **Try it out on the [website](ht
 
 ---
 
-![youtube_video_downloader_search](https://user-images.githubusercontent.com/52415147/167301052-d637d36b-3647-404c-8e81-24231baed8eb.png)
+![youtube_video_downloader_search_2](https://user-images.githubusercontent.com/52415147/167301407-824a9e2c-0c7f-411c-9e90-46c5c948ef8f.png)
 
 ---
 
-![youtube_video_downloader_history](https://user-images.githubusercontent.com/52415147/167301054-3058aabe-9f78-413a-9ddc-8b3cd0433e67.png)
+![youtube_video_downloader_history_2](https://user-images.githubusercontent.com/52415147/167301411-10f0329e-b3dd-4de8-bc65-8a9477e06690.png)
