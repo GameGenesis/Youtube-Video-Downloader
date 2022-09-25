@@ -1,6 +1,7 @@
-#Database
+#Database & Project-specific
 temp
 website/database.db
+src/pytube/
 
 # Byte-compiled / optimized / DLL files
 /__pycache__/
