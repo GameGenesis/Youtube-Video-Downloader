@@ -1,5 +1,5 @@
 # Youtube Video Downloader
-Convert a YouTube video or playlist to MP3/MP4. **Try it out on the [website](https://youtube-video-to-mp4.herokuapp.com/).**
+Convert a YouTube video or playlist to MP3/MP4.
 
 ---
 
