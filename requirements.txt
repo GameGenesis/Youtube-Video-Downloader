@@ -11,4 +11,3 @@ SQLAlchemy==1.4.31
 Werkzeug==2.0.3
 youtube-search-python==1.6.2
 yt-dlp==2022.2.4
-uwsgi
