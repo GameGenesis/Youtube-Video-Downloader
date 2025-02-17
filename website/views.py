@@ -3,7 +3,7 @@ from flask_login import login_required, current_user
 from .models import Video
 from . import db
 
-from pytube import YouTube, Playlist
+from pytubefix import YouTube, Playlist
 from youtubesearchpython import VideosSearch, PlaylistsSearch
 from moviepy.editor import AudioFileClip
 import mutagen
