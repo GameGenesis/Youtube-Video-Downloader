@@ -9,5 +9,5 @@ mutagen==1.45.1
 pytube==15.0.0
 SQLAlchemy==1.4.31
 Werkzeug==2.0.3
-youtube-search-python==1.6.2
+youtube-search-python==1.6.6
 yt-dlp==2022.2.4
