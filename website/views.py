@@ -3,9 +3,9 @@ from flask_login import login_required, current_user
 from .models import Video
 from . import db
 
-from pytube import YouTube, Playlist
+from pytubefix import YouTube, Playlist
 from youtubesearchpython import VideosSearch, PlaylistsSearch
-from moviepy.editor import AudioFileClip
+from moviepy import VideoFileClip
 import mutagen
 
 from io import BytesIO
@@ -58,7 +58,7 @@ def video():
         # Convert to mp3
         try:
             if file_type == "mp3":
-                file_path_mp3 = file_path.replace("mp4", "mp3")
+                file_path_mp3 = file_path.replace(file_path.split(".")[1], "mp3")
                 if os.path.exists(file_path_mp3):
                     os.remove(file_path_mp3)
                 
@@ -210,11 +210,12 @@ def search():
 
 def convert_to_mp3_with_metadata(file_path: str) -> str:
     # Use moviepy to convert an mp4 to an mp3 with metadata support. Delete mp4 afterwards
-    audio_clip = AudioFileClip(file_path)
-    file_path = file_path.replace("mp4", "mp3")
-    audio_clip.write_audiofile(file_path)
-    audio_clip.close()
-    os.remove(file_path.replace("mp3", "mp4"))
+    original_file_path = file_path
+    video = VideoFileClip(file_path)
+    file_path = file_path.replace(file_path.split(".")[1], "mp3")
+    video.audio.write_audiofile(file_path)
+    video.close()
+    os.remove(original_file_path)
     return file_path
 
 def update_metadata(file_path: str, title: str, artist: str, album: str="") -> None:
